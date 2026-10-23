@@ -126,9 +126,9 @@ def apostar():
     return redirect(url_for('index'))
 
 # Configuración de WhatsApp Webhook y API
-VERIFY_TOKEN = "mi_token_secreto_quiniela_123"
-WHATSAPP_TOKEN = "TU_TOKEN_DE_ACCESO_TEMPORAL_DE_META"
-PHONE_NUMBER_ID = "TU_PHONE_NUMBER_ID"
+VERIFY_TOKEN = "quiniela123"
+WHATSAPP_TOKEN = "EAAp4vgiBprkBS5YrgbPxJAmzLMZANnZCdl3vOk3nv7O8lDx9OZBs3Q1DwOgZCcQcW2P7YDYim0pcBwTlx6ynXNcPZCWGHgalPmQ6HZAPdrGh7SGRbKBy5LeOLBOnsBzKJNCqHro6KLAJbXa732V70Gfte123fOBBBZAiH4r2HmGnyp4SVyvYZA2L4Le6dbKtV5my8pFq79TYZA2uxoujD7eZC6qCjLJXaTK8lwuW7GykKfgdzmaos3HsJSTnQ5FFPW9tbbZCshFZBCegZBzZBddT2ZCloBx874K"
+PHONE_NUMBER_ID = "1307957199078751"
 
 def enviar_mensaje_whatsapp(destinatario, texto):
     url = f"https://graph.facebook.com/v17.0/{PHONE_NUMBER_ID}/messages"
@@ -168,7 +168,7 @@ def recibir_mensajes():
     data = request.get_json()
     
     try:
-        if data.get('object'):
+        if data and data.get('object'):
             for entry in data['entry']:
                 for change in entry['changes']:
                     value = change.get('value', {})
@@ -207,8 +207,7 @@ def recibir_mensajes():
             return "EVENT_RECEIVED", 200
     except Exception as e:
         print(f"Error procesando el webhook: {e}")
-        return "OK", 200
-
+        
     return "OK", 200
 
 if __name__ == '__main__':
