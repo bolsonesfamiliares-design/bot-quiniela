@@ -1,11 +1,28 @@
 from flask import Flask, render_template_string, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__)
 
-# Lista en memoria para simular la base de datos de apuestas por ahora
-apuestas = []
+# Configuración de la base de datos SQLite
+# Se guardará en un archivo llamado 'quiniela.db' en la raíz del proyecto
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiniela.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Plantilla HTML integrada para que no tengas que crear archivos extra
+db = SQLAlchemy(app)
+
+# Definición del modelo (Tabla de Apuestas)
+class Apuesta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    jugador = db.Column(db.String(100), nullable=False)
+    numero = db.Column(db.String(2), nullable=False)
+    monto = db.Column(db.Float, nullable=False)
+
+# Crear la base de datos automáticamente si no existe
+with app.app_context():
+    db.create_all()
+
+# Plantilla HTML integrada con Bootstrap
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
@@ -19,7 +36,7 @@ HTML_TEMPLATE = """
     <div class="container mt-5">
         <div class="text-center mb-4">
             <h1 class="display-5 font-weight-bold text-primary">🎲 Quiniela en Línea 🎲</h1>
-            <p class="text-muted">Haz tu jugada de forma rápida y sencilla</p>
+            <p class="text-muted">Apuestas guardadas de forma persistente en SQLite</p>
         </div>
 
         <div class="row">
@@ -67,7 +84,7 @@ HTML_TEMPLATE = """
                                         <tr>
                                             <td>{{ a.jugador }}</td>
                                             <td><span class="badge badge-success p-2" style="font-size: 1rem;">{{ a.numero }}</span></td>
-                                            <td>${{ a.monto }}</td>
+                                            <td>${{ "%.2f"|format(a.monto) }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -87,6 +104,8 @@ HTML_TEMPLATE = """
 
 @app.route('/')
 def index():
+    # Consultar todas las apuestas ordenadas de la más reciente a la más antigua
+    apuestas = Apuesta.query.order_by(Apuesta.id.desc()).all()
     return render_template_string(HTML_TEMPLATE, apuestas=apuestas)
 
 @app.route('/apostar', methods=['POST'])
@@ -96,11 +115,13 @@ def apostar():
     monto = request.form.get('monto')
     
     if jugador and numero and monto:
-        apuestas.append({
-            'jugador': jugador,
-            'numero': numero.zfill(2), # Asegura formato de dos dígitos ej: '05'
-            'monto': monto
-        })
+        nueva_apuesta = Apuesta(
+            jugador=jugador,
+            numero=str(numero).zfill(2), # Asegura formato de dos dígitos ej: '05'
+            monto=float(monto)
+        )
+        db.session.add(nueva_apuesta)
+        db.session.commit()
         
     return redirect(url_for('index'))
 

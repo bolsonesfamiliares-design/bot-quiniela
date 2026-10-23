@@ -1,0 +1,36 @@
+Si necesitas reiniciar tu computadora por completo y quieres volver a arrancar tu servidor local de desarrollo o acceder a tu aplicación, los pasos son muy sencillos.
+
+Aquí tienes la guía paso a paso para encender todo de nuevo:
+
+1. Encender tu entorno local (si quieres probar en tu PC)
+Una vez que enciendas la PC y abra Windows:
+
+Abre el menú inicio y busca la Terminal o el Símbolo del sistema (CMD).
+
+Navega hasta la carpeta donde tienes tu proyecto con el siguiente comando:
+
+PowerShell
+cd C:\Users\alumno\DESKTOP\QUI
+Inicia el servidor de Flask ejecutando:
+
+PowerShell
+python app.py
+Copia la dirección que aparece en pantalla (generalmente [http://127.0.0.1:5000](http://127.0.0.1:5000)), pégala en tu navegador web y presiona Enter para ver tu quiniela funcionando en local.
+
+2. Acceder a tu versión en vivo (en Internet)
+Si lo que quieres es ver tu página publicada en internet para que cualquier persona (o tú desde cualquier dispositivo) pueda entrar:
+
+Abre tu navegador habitual.
+
+Escribe o haz clic en tu enlace oficial de Render:
+👉 [https://bot-quiniela.onrender.com](https://bot-quiniela.onrender.com)
+
+   
+PNG
+
+Recuerda: Como la PC se reinició y el servicio de Render está en el plan gratuito, si el servidor estaba inactivo, la primera vez que entres tardará unos 30 a 50 segundos en cargar mientras vuelve a despertar. ¡Solo ten un poco de paciencia y aparecerá tu quiniela!   
+PNG
+
+¿Quieres que veamos cómo verificar tu aplicación en Render tras el reinicio?
+
+Sí
