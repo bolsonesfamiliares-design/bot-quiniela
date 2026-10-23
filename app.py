@@ -1,9 +1,7 @@
-import os
 from flask import Flask, request
 
 app = Flask(__name__)
 
-# Token de verificación para Meta
 VERIFY_TOKEN = "quiniela123"
 
 @app.route('/', methods=['GET'])
@@ -23,8 +21,6 @@ def verify():
 
 @app.route('/whatsapp', methods=['POST'])
 def webhook():
-    data = request.get_json()
-    print("Mensaje recibido:", data)
     return "EVENT_RECEIVED", 200
 
 if __name__ == '__main__':
