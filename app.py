@@ -1,82 +1,108 @@
-import os
-import requests
-from flask import Flask, request, jsonify
+from flask import Flask, render_template_string, request, redirect, url_for
 
 app = Flask(__name__)
 
-# Configuración de credenciales de Meta y tu Bot
-# Puedes cargarlas desde las variables de entorno de Render o dejarlas definidas aquí para pruebas rápidas.
-WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN", "EAAp4vgiBprkBS1NOL1KBFc8lXKgZBMnT6l4adVeEEZA2lPzZA0orgZB0xFEB4oooXuXEIQmJzjiSKNnIMxZCow30C8HDsihwZBmVXMY4rvQPVGgKUUZB5Xj6BkYMA6Ps9JDIk6v1NIFu622rVwNhzlxQqkZCI2j3OhnR0DrseUMo0bgFOeZCd7aPttpLnVLCsLhBfHQajFClr2BUAAwYWPlujW2YbOtpcE9RIKADKB9HyZC7SXUmXlZBoFIsvq3AStZCucYrhLzInnTO6EoxBt7v2mxbJK5D")
-PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID", "1307957199078751")
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "quiniela123")
+# Lista en memoria para simular la base de datos de apuestas por ahora
+apuestas = []
 
-@app.route("/", methods=["GET"])
-def home():
-    return "¡El bot de Quiniela en Línea está funcionando correctamente!", 200
+# Plantilla HTML integrada para que no tengas que crear archivos extra
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiniela en Línea</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h1 class="display-5 font-weight-bold text-primary">🎲 Quiniela en Línea 🎲</h1>
+            <p class="text-muted">Haz tu jugada de forma rápida y sencilla</p>
+        </div>
 
-# Ruta del Webhook configurada en Meta (/whatsapp)
-@app.route("/whatsapp", methods=["GET", "POST"])
-def webhook():
-    # 1. Verificación del Webhook por parte de Meta (Petición GET)
-    if request.method == "GET":
-        mode = request.args.get("hub.mode")
-        token = request.args.get("hub.verify_token")
-        challenge = request.args.get("hub.challenge")
+        <div class="row">
+            <!-- Formulario de Apuesta -->
+            <div class="col-md-5 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Nueva Apuesta</h4>
+                        <form method="POST" action="/apostar">
+                            <div class="form-group">
+                                <label for="jugador">Nombre del Jugador:</label>
+                                <input type="text" class="form-control" id="jugador" name="jugador" required placeholder="Ej: Juan Pérez">
+                            </div>
+                            <div class="form-group">
+                                <label for="numero">Número (00 al 99):</label>
+                                <input type="number" class="form-control" id="numero" name="numero" min="0" max="99" required placeholder="Ej: 45">
+                            </div>
+                            <div class="form-group">
+                                <label for="monto">Monto a apostar ($):</label>
+                                <input type="number" class="form-control" id="monto" name="monto" step="0.01" required placeholder="Ej: 500">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Registrar Apuesta</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
-        if mode and token:
-            if mode == "subscribe" and token == VERIFY_TOKEN:
-                print("WEBHOOK_VERIFIED: El Webhook se verificó correctamente con Meta.")
-                return challenge, 200
-            else:
-                return "Token de verificación incorrecto", 403
-        return "Parámetros inválidos", 400
+            <!-- Listado de Apuestas Realizadas -->
+            <div class="col-md-7">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title mb-3">Apuestas Registradas</h4>
+                        {% if apuestas %}
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Jugador</th>
+                                            <th>Número</th>
+                                            <th>Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for a in apuestas %}
+                                        <tr>
+                                            <td>{{ a.jugador }}</td>
+                                            <td><span class="badge badge-success p-2" style="font-size: 1rem;">{{ a.numero }}</span></td>
+                                            <td>${{ a.monto }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Aún no hay apuestas registradas para este sorteo.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+"""
 
-    # 2. Recepción de mensajes de WhatsApp (Petición POST)
-    elif request.method == "POST":
-        data = request.json
-        print("Mensaje recibido de Meta:", data)
+@app.route('/')
+def index():
+    return render_template_string(HTML_TEMPLATE, apuestas=apuestas)
 
-        try:
-            # Extraer información del mensaje entrante
-            changes = data["entry"][0]["changes"][0]
-            value = changes["value"]
-            
-            if "messages" in value:
-                phone_number_id = value["metadata"]["phone_number_id"]
-                from_number = value["messages"][0]["from"]
-                msg_body = value["messages"][0]["text"]["body"].strip()
-
-                print(f"Mensaje de {from_number}: {msg_body}")
-
-                # Lógica de respuesta automática para la Quiniela
-                responder_mensaje(phone_number_id, from_number, msg_body)
-
-        except Exception as e:
-            print(f"Error procesando el mensaje: {e}")
-
-        return jsonify({"status": "success"}), 200
-
-def responder_mensaje(phone_number_id, to_number, mensaje):
-    """Función para enviar mensajes de respuesta a través de la API de Meta"""
-    url = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"
+@app.route('/apostar', methods=['POST'])
+def apostar():
+    jugador = request.form.get('jugador')
+    numero = request.form.get('numero')
+    monto = request.form.get('monto')
     
-    headers = {
-        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
-        "Content-Type": "application/json"
-    }
+    if jugador and numero and monto:
+        apuestas.append({
+            'jugador': jugador,
+            'numero': numero.zfill(2), # Asegura formato de dos dígitos ej: '05'
+            'monto': monto
+        })
+        
+    return redirect(url_for('index'))
 
-    # Texto de respuesta predeterminado para la Quiniela
-    texto_respuesta = f"¡Hola! Recibí tu mensaje: '{mensaje}'. Bienvenido a Quiniela en Línea. Escribe 'apostar' o consulta tu jugada."
-
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": to_number,
-        "type": "text",
-        "text": {"body": texto_respuesta}
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-    print("Respuesta enviada a Meta:", response.status_code, response.text)
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
