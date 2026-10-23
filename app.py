@@ -126,7 +126,7 @@ def apostar():
     return redirect(url_for('index'))
 
 # Configuración de WhatsApp Webhook y API
-VERIFY_TOKEN = "mi_token_secreto_quiniela_123"
+VERIFY_TOKEN = "quiniela123"
 WHATSAPP_TOKEN = "EAAp4vgiBprkBS5YrgbPxJAmzLMZANnZCdl3vOk3nv7O8lDx9OZBs3Q1DwOgZCcQcW2P7YDYim0pcBwTlx6ynXNcPZCWGHgalPmQ6HZAPdrGh7SGRbKBy5LeOLBOnsBzKJNCqHro6KLAJbXa732V70Gfte123fOBBBZAiH4r2HmGnyp4SVyvYZA2L4Le6dbKtV5my8pFq79TYZA2uxoujD7eZC6qCjLJXaTK8lwuW7GykKfgdzmaos3HsJSTnQ5FFPW9tbbZCshFZBCegZBzZBddT2ZCloBx874K"
 PHONE_NUMBER_ID = "1307957199078751"
 

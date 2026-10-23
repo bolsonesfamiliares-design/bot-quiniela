@@ -1,0 +1,1 @@
+[ Tu computadora (app.py) ] ──(Git Push)──> [ GitHub ] ──(Auto-Deploy)──> [ Render ] <──(Webhook)──> [ Meta / WhatsApp ]
