@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 import random
 import requests
@@ -5,9 +6,9 @@ import requests
 app = Flask(__name__)
 
 # --- CONFIGURACIÓN DE META WHATSAPP CLOUD API ---
-VERIFY_TOKEN = "quiniela123"                  # El token secreto que pusiste en Meta
-WHATSAPP_TOKEN = "TU_TOKEN_PERMANENTE_O_TEMPORAL_DE_META"   # Token de acceso de Meta Developers
-PHONE_NUMBER_ID = "TU_PHONE_NUMBER_ID"    # ID del número de teléfono provisto por Meta
+VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "quiniela123")
+WHATSAPP_TOKEN = os.environ.get("WHATSAPP_TOKEN", "TU_TOKEN_PERMANENTE_O_TEMPORAL_DE_META")
+PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "TU_PHONE_NUMBER_ID")
 
 # Base de datos simulada de usuarios en memoria
 usuarios_db = {}
@@ -162,6 +163,11 @@ def enviar_respuesta_whatsapp(telefono, texto_respuesta):
     }
     requests.post(url, json=payload, headers=headers)
 
+# RUTA PRINCIPAL (Para evitar error 404 en la raíz)
+@app.route("/", methods=["GET"])
+def home():
+    return "🤖 ¡El Bot de Quiniela para WhatsApp está activo y funcionando en Render!", 200
+
 # ENDPOINT DE FLASK (WEBHOOK PARA META)
 @app.route("/whatsapp", methods=["GET", "POST"])
 def webhook_whatsapp():
@@ -183,20 +189,16 @@ def webhook_whatsapp():
         data = request.get_json()
         
         try:
-            # Extraer los datos del mensaje entrante de Meta
             cambio = data["entry"][0]["changes"][0]["value"]
             if "messages" in cambio:
                 mensaje_data = cambio["messages"][0]
                 telefono = mensaje_data["from"]
                 mensaje_recibido = mensaje_data["text"]["body"]
 
-                # Procesar lógica del bot
+                # Procesar lógica del bot y enviar respuesta
                 respuesta_bot = procesar_mensaje_whatsapp(telefono, mensaje_recibido)
-
-                # Enviar mensaje de vuelta por WhatsApp
                 enviar_respuesta_whatsapp(telefono, respuesta_bot)
         except (KeyError, IndexError):
-            # Si es una notificación de estado (entregado, leído) se ignora sin romper el servidor
             pass
 
         return jsonify({"status": "success"}), 200
