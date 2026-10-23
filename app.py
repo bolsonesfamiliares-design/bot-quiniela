@@ -126,10 +126,9 @@ def apostar():
     return redirect(url_for('index'))
 
 # Configuración de WhatsApp Webhook y API
-# Configuración de WhatsApp Webhook y API
-VERIFY_TOKEN = "mi_token_secreto_quiniela_123"  # La misma palabra secreta que pongas en Meta
-WHATSAPP_TOKEN = "EAAG..."                      # Tu Token de acceso temporal real de Meta
-PHONE_NUMBER_ID = "106...'"                     # Tu Phone Number ID real
+VERIFY_TOKEN = "mi_token_secreto_quiniela_123"
+WHATSAPP_TOKEN = "EAAG..."
+PHONE_NUMBER_ID = "106..."
 
 def enviar_mensaje_whatsapp(destinatario, texto):
     url = f"https://graph.facebook.com/v17.0/{PHONE_NUMBER_ID}/messages"
@@ -169,7 +168,7 @@ def recibir_mensajes():
     data = request.get_json()
     
     try:
-        if data.get('object'):
+        if data and data.get('object'):
             for entry in data['entry']:
                 for change in entry['changes']:
                     value = change.get('value', {})
@@ -208,8 +207,7 @@ def recibir_mensajes():
             return "EVENT_RECEIVED", 200
     except Exception as e:
         print(f"Error procesando el webhook: {e}")
-        return "OK", 200
-
+        
     return "OK", 200
 
 if __name__ == '__main__':
