@@ -1,0 +1,2 @@
+git config --global user.name "Daniel_Reynoso"
+git config --global user.email "tu-bolsonesfamiliares@gmail.com"
