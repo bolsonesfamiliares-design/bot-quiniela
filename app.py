@@ -22,82 +22,265 @@ class Apuesta(db.Model):
 with app.app_context():
     db.create_all()
 
-# Plantilla HTML integrada con Bootstrap
+# ==========================================
+# Plantilla HTML MEJORADA CON DISEÑO MODERNO
+# ==========================================
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiniela en Línea</title>
+    <title>Quiniela Premium :: Tu Suerte en Línea</title>
+    <!-- Bootstrap 4.5 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+            letter-spacing: 1px;
+        }
+        .hero-banner {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/quini429.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .hero-banner h1 {
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+        .card-title {
+            font-weight: 600;
+            color: #1e3c72;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #ced4da;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
+            border-color: #2a5298;
+        }
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-radius: 10px 0 0 10px;
+            border-right: none;
+            color: #2a5298;
+        }
+        .input-group .form-control {
+            border-radius: 0 10px 10px 0;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.3s ease;
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .table {
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+        .table thead th {
+            border: none;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        .table tbody tr {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        .table tbody td {
+            border: none;
+            padding: 20px;
+            vertical-align: middle;
+        }
+        .table tbody tr td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        .table tbody tr td:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        .badge-numero {
+            background-color: #28a745;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 10px 15px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .monto-text {
+            font-weight: 600;
+            color: #1e3c72;
+            font-size: 1.1rem;
+        }
+        footer {
+            margin-top: 50px;
+            padding: 30px 0;
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <div class="text-center mb-4">
-            <h1 class="display-5 font-weight-bold text-primary">🎲 Quiniela en Línea 🎲</h1>
-            <p class="text-muted">Apuestas guardadas de forma persistente en SQLite & WhatsApp</p>
+<body>
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-dice mr-2"></i>QUINIELA PREMIUM</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Hero Banner con Imagen -->
+        <div class="hero-banner text-center">
+            <div class="container">
+                <h1 class="display-4">¡Tu Próxima Jugada Ganadora!</h1>
+                <p class="lead">Registrá tus apuestas de forma segura y seguí el sorteo en tiempo real.</p>
+            </div>
         </div>
 
         <div class="row">
-            <!-- Formulario de Apuesta -->
+            <!-- Formulario de Apuesta Mejorado -->
             <div class="col-md-5 mb-4">
-                <div class="card shadow-sm">
+                <div class="card shadow">
                     <div class="card-body">
-                        <h4 class="card-title mb-3">Nueva Apuesta</h4>
+                        <h4 class="card-title"><i class="fas fa-plus-circle mr-2"></i>Nueva Apuesta</h4>
                         <form method="POST" action="/apostar">
                             <div class="form-group">
-                                <label for="jugador">Nombre del Jugador:</label>
-                                <input type="text" class="form-control" id="jugador" name="jugador" required placeholder="Ej: Juan Pérez">
+                                <label for="jugador">Nombre del Jugador</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="jugador" name="jugador" required placeholder="Ej: Juan Pérez">
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="numero">Número (00 al 99):</label>
-                                <input type="number" class="form-control" id="numero" name="numero" min="0" max="99" required placeholder="Ej: 45">
+                                <label for="numero">Número a Jugar (00-99)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-slaters"></i></span>
+                                    </div>
+                                    <input type="number" class="form-control" id="numero" name="numero" min="0" max="99" required placeholder="Ej: 45">
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="monto">Monto a apostar ($):</label>
-                                <input type="number" class="form-control" id="monto" name="monto" step="0.01" required placeholder="Ej: 500">
+                                <label for="monto">Monto a Apostar ($)</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+                                    </div>
+                                    <input type="number" class="form-control" id="monto" name="monto" step="0.01" required placeholder="Ej: 500">
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">Registrar Apuesta</button>
+                            <button type="submit" class="btn btn-gradient btn-block mt-4">
+                                <i class="fas fa-ticket-alt mr-2"></i>Registrar Apuesta
+                            </button>
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Listado de Apuestas Realizadas -->
+            <!-- Listado de Apuestas Realizadas Mejorado -->
             <div class="col-md-7">
-                <div class="card shadow-sm">
+                <div class="card shadow">
                     <div class="card-body">
-                        <h4 class="card-title mb-3">Apuestas Registradas</h4>
+                        <h4 class="card-title"><i class="fas fa-history mr-2"></i>Apuestas Registradas</h4>
                         {% if apuestas %}
                             <div class="table-responsive">
-                                <table class="table table-striped">
+                                <table class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th>Jugador</th>
-                                            <th>Número</th>
-                                            <th>Monto</th>
+                                            <th class="text-center">Número</th>
+                                            <th class="text-right">Monto</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for a in apuestas %}
                                         <tr>
-                                            <td>{{ a.jugador }}</td>
-                                            <td><span class="badge badge-success p-2" style="font-size: 1rem;">{{ a.numero }}</span></td>
-                                            <td>${{ "%.2f"|format(a.monto) }}</td>
+                                            <td>
+                                                <i class="fas fa-user-circle text-muted mr-2"></i>{{ a.jugador }}
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge-numero">{{ a.numero }}</span>
+                                            </td>
+                                            <td class="text-right monto-text">
+                                                ${{ "%.2f"|format(a.monto) }}
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
                         {% else %}
-                            <p class="text-muted">Aún no hay apuestas registradas para este sorteo.</p>
+                            <div class="text-center py-5 text-muted">
+                                <i class="fas fa-box-open fa-3x mb-3"></i>
+                                <p>Aún no hay apuestas registradas para este sorteo.</p>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="container">
+            <p class="mb-0">&copy; 2023 Quiniela Premium. Todos los derechos reservados.</p>
+            <small>Sistema de gestión de apuestas persistente.</small>
+        </div>
+    </footer>
+
+    <!-- Scripts de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </body>
 </html>
 """
@@ -126,7 +309,7 @@ def apostar():
     return redirect(url_for('index'))
 
 # Configuración de WhatsApp Webhook y API
-VERIFY_TOKEN = "quiniela123"
+VERIFY_TOKEN = "mi_token_secreto_quiniela_123"
 WHATSAPP_TOKEN = "EAAp4vgiBprkBS5YrgbPxJAmzLMZANnZCdl3vOk3nv7O8lDx9OZBs3Q1DwOgZCcQcW2P7YDYim0pcBwTlx6ynXNcPZCWGHgalPmQ6HZAPdrGh7SGRbKBy5LeOLBOnsBzKJNCqHro6KLAJbXa732V70Gfte123fOBBBZAiH4r2HmGnyp4SVyvYZA2L4Le6dbKtV5my8pFq79TYZA2uxoujD7eZC6qCjLJXaTK8lwuW7GykKfgdzmaos3HsJSTnQ5FFPW9tbbZCshFZBCegZBzZBddT2ZCloBx874K"
 PHONE_NUMBER_ID = "1307957199078751"
 
