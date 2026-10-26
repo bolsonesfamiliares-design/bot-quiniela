@@ -5,8 +5,16 @@ import requests
 
 app = Flask(__name__)
 
-# Configuración de la base de datos SQLite
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiniela.db'
+# Configuración de base de datos dinámica (SQLite local / PostgreSQL en Render)
+database_url = os.environ.get("DATABASE_URL")
+if database_url:
+    # Render a veces usa 'postgres://' y SQLAlchemy requiere 'postgresql://'
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiniela.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -203,7 +211,7 @@ HTML_TEMPLATE = """
                                 <label for="numero">Número a Jugar (00-99)</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-slaters"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
                                     </div>
                                     <input type="number" class="form-control" id="numero" name="numero" min="0" max="99" required placeholder="Ej: 45">
                                 </div>
@@ -272,13 +280,13 @@ HTML_TEMPLATE = """
     <!-- Footer -->
     <footer class="text-center">
         <div class="container">
-            <p class="mb-0">&copy; 2023 Quiniela Premium. Todos los derechos reservados.</p>
+            <p class="mb-0">&copy; 2026 Quiniela Premium. Todos los derechos reservados.</p>
             <small>Sistema de gestión de apuestas persistente.</small>
         </div>
     </footer>
 
     <!-- Scripts de Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </body>
@@ -308,10 +316,10 @@ def apostar():
         
     return redirect(url_for('index'))
 
-# Configuración de WhatsApp Webhook y API
-VERIFY_TOKEN = "mi_token_secreto_quiniela_123"
-WHATSAPP_TOKEN = "EAAp4vgiBprkBS5YrgbPxJAmzLMZANnZCdl3vOk3nv7O8lDx9OZBs3Q1DwOgZCcQcW2P7YDYim0pcBwTlx6ynXNcPZCWGHgalPmQ6HZAPdrGh7SGRbKBy5LeOLBOnsBzKJNCqHro6KLAJbXa732V70Gfte123fOBBBZAiH4r2HmGnyp4SVyvYZA2L4Le6dbKtV5my8pFq79TYZA2uxoujD7eZC6qCjLJXaTK8lwuW7GykKfgdzmaos3HsJSTnQ5FFPW9tbbZCshFZBCegZBzZBddT2ZCloBx874K"
-PHONE_NUMBER_ID = "1307957199078751"
+# Configuración de WhatsApp Webhook y API (usando variables de entorno o valores seguros)
+VERIFY_TOKEN = os.environ.get("VERIFY_TOKEN", "mi_token_secreto_quiniela_123")
+WHATSAPP_TOKEN = os.environ.get("WHATSAPP_TOKEN", "EAAp4vgiBprkBS5YrgbPxJAmzLMZANnZCdl3vOk3nv7O8lDx9OZBs3Q1DwOgZCcQcW2P7YDYim0pcBwTlx6ynXNcPZCWGHgalPmQ6HZAPdrGh7SGRbKBy5LeOLBOnsBzKJNCqHro6KLAJbXa732V70Gfte123fOBBBZAiH4r2HmGnyp4SVyvYZA2L4Le6dbKtV5my8pFq79TYZA2uxoujD7eZC6qCjLJXaTK8lwuW7GykKfgdzmaos3HsJSTnQ5FFPW9tbbZCshFZBCegZBzZBddT2ZCloBx874K")
+PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "1307957199078751")
 
 def enviar_mensaje_whatsapp(destinatario, texto):
     url = f"https://graph.facebook.com/v17.0/{PHONE_NUMBER_ID}/messages"
@@ -332,24 +340,9 @@ def enviar_mensaje_whatsapp(destinatario, texto):
         print(f"Error enviando mensaje de WhatsApp: {e}")
         return None
 
-@app.route('/webhook', methods=['GET'])
-def verificar_webhook():
-    mode = request.args.get('hub.mode')
-    token = request.args.get('hub.verify_token')
-    challenge = request.args.get('hub.challenge')
-    
-    if mode and token:
-        if mode == 'subscribe' and token == VERIFY_TOKEN:
-            print("¡Webhook verificado correctamente por Meta!")
-            return challenge, 200
-        else:
-            return "Error de verificación: Token incorrecto", 403
-    return "Parámetros faltantes", 400
-
-@app.route('/webhook', methods=['POST'])
-def recibir_mensajes():
+# Lógica compartida para procesar el webhook (sirve tanto para /webhook como para /whatsapp)
+def procesar_webhook_logic():
     data = request.get_json()
-    
     try:
         if data and data.get('object'):
             for entry in data['entry']:
@@ -393,5 +386,28 @@ def recibir_mensajes():
         
     return "OK", 200
 
+# Rutas duales para GET (Verificación de Meta)
+@app.route('/webhook', methods=['GET'])
+@app.route('/whatsapp', methods=['GET'])
+def verificar_webhook():
+    mode = request.args.get('hub.mode')
+    token = request.args.get('hub.verify_token')
+    challenge = request.args.get('hub.challenge')
+    
+    if mode and token:
+        if mode == 'subscribe' and token == VERIFY_TOKEN:
+            print("¡Webhook verificado correctamente por Meta!")
+            return challenge, 200
+        else:
+            return "Error de verificación: Token incorrecto", 403
+    return "Parámetros faltantes", 400
+
+# Rutas duales para POST (Recepción de mensajes de WhatsApp)
+@app.route('/webhook', methods=['POST'])
+@app.route('/whatsapp', methods=['POST'])
+def recibir_mensajes():
+    return procesar_webhook_logic()
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
