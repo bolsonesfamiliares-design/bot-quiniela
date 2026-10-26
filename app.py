@@ -5,10 +5,21 @@ import requests
 
 app = Flask(__name__)
 
-# Configuración de la base de datos SQLite
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiniela.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# ==========================================
+# Configuración de Base de Datos Dinámica
+# ==========================================
+database_url = os.environ.get('DATABASE_URL')
 
+if database_url:
+    # Render entrega URLs con 'postgres://', SQLAlchemy exige 'postgresql://'
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+else:
+    # Base de datos local SQLite para desarrollo en tu computadora
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiniela.db'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Definición del modelo (Tabla de Apuestas)
@@ -203,7 +214,7 @@ HTML_TEMPLATE = """
                                 <label for="numero">Número a Jugar (00-99)</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-slaters"></i></span>
+                                        <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
                                     </div>
                                     <input type="number" class="form-control" id="numero" name="numero" min="0" max="99" required placeholder="Ej: 45">
                                 </div>
@@ -272,13 +283,13 @@ HTML_TEMPLATE = """
     <!-- Footer -->
     <footer class="text-center">
         <div class="container">
-            <p class="mb-0">&copy; 2023 Quiniela Premium. Todos los derechos reservados.</p>
+            <p class="mb-0">&copy; 2026 Quiniela Premium. Todos los derechos reservados.</p>
             <small>Sistema de gestión de apuestas persistente.</small>
         </div>
     </footer>
 
     <!-- Scripts de Bootstrap -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </body>
@@ -308,10 +319,12 @@ def apostar():
         
     return redirect(url_for('index'))
 
-# Configuración de WhatsApp Webhook y API
-VERIFY_TOKEN = "mi_token_secreto_quiniela_123"
-WHATSAPP_TOKEN = "EAAp4vgiBprkBS5YrgbPxJAmzLMZANnZCdl3vOk3nv7O8lDx9OZBs3Q1DwOgZCcQcW2P7YDYim0pcBwTlx6ynXNcPZCWGHgalPmQ6HZAPdrGh7SGRbKBy5LeOLBOnsBzKJNCqHro6KLAJbXa732V70Gfte123fOBBBZAiH4r2HmGnyp4SVyvYZA2L4Le6dbKtV5my8pFq79TYZA2uxoujD7eZC6qCjLJXaTK8lwuW7GykKfgdzmaos3HsJSTnQ5FFPW9tbbZCshFZBCegZBzZBddT2ZCloBx874K"
-PHONE_NUMBER_ID = "1307957199078751"
+# ==========================================
+# Configuración de Credenciales por Variables de Entorno
+# ==========================================
+VERIFY_TOKEN = os.environ.get('VERIFY_TOKEN', 'mi_token_secreto_quiniela_123')
+WHATSAPP_TOKEN = os.environ.get('WHATSAPP_TOKEN', 'TU_TOKEN_TEMPORAL_O_PERMANENTE')
+PHONE_NUMBER_ID = os.environ.get('PHONE_NUMBER_ID', '1307957199078751')
 
 def enviar_mensaje_whatsapp(destinatario, texto):
     url = f"https://graph.facebook.com/v17.0/{PHONE_NUMBER_ID}/messages"
