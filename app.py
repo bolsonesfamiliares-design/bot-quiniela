@@ -54,8 +54,24 @@ def index():
     """
     return html
 
-@app.route('/webhook', methods=['POST'])
+@app.route('/webhook', methods=['GET', 'POST'])
 def webhook():
+    # 1. Verificación requerida por Meta (GET)
+    if request.method == 'GET':
+        VERIFY_TOKEN = "quini123"
+        mode = request.args.get('hub.mode')
+        token = request.args.get('hub.verify_token')
+        challenge = request.args.get('hub.challenge')
+        
+        if mode and token:
+            if mode == 'subscribe' and token == VERIFY_TOKEN:
+                print("✅ Webhook verificado correctamente por Meta")
+                return challenge, 200
+            else:
+                return "Token incorrecto", 403
+        return "Parámetros inválidos", 400
+
+    # 2. Recepción de mensajes de WhatsApp (POST)
     data = request.get_json()
     print("📦 JSON recibido:", data)
     try:
