@@ -1,0 +1,88 @@
+ft Windows [Versión 10.0.19045.6466]
+(c) Microsoft Corporation. Todos los derechos reservados.
+
+C:\Users\alumno>cd /d C:\Proyectos
+El sistema no puede encontrar la ruta especificada.
+
+C:\Users\alumno>mkdir whatsapp-bot
+
+C:\Users\alumno>cd whatsapp-bot
+
+C:\Users\alumno\whatsapp-bot>
+C:\Users\alumno\whatsapp-bot>mkdir app
+
+C:\Users\alumno\whatsapp-bot>mkdir app\templates
+
+C:\Users\alumno\whatsapp-bot>mkdir app\static
+
+C:\Users\alumno\whatsapp-bot>mkdir app\static\css
+
+C:\Users\alumno\whatsapp-bot>mkdir app\static\js
+
+C:\Users\alumno\whatsapp-bot>mkdir instance
+
+C:\Users\alumno\whatsapp-bot>mkdir tests
+
+C:\Users\alumno\whatsapp-bot>
+C:\Users\alumno\whatsapp-bot>type nul > app\__init__.py
+
+C:\Users\alumno\whatsapp-bot>type nul > app\routes.py
+
+C:\Users\alumno\whatsapp-bot>type nul > app\models.py
+
+C:\Users\alumno\whatsapp-bot>type nul > app\whatsapp.py
+
+C:\Users\alumno\whatsapp-bot>type nul > app\templates\index.html
+
+C:\Users\alumno\whatsapp-bot>type nul > app\static\css\style.css
+
+C:\Users\alumno\whatsapp-bot>type nul > app\static\js\main.js
+
+C:\Users\alumno\whatsapp-bot>type nul > tests\__init__.py
+
+C:\Users\alumno\whatsapp-bot>type nul > tests\test_app.py
+
+C:\Users\alumno\whatsapp-bot>type nul > run.py
+
+C:\Users\alumno\whatsapp-bot>type nul > requirements.txt
+
+C:\Users\alumno\whatsapp-bot>type nul > .gitignore
+
+C:\Users\alumno\whatsapp-bot>type nul > .env.example
+
+C:\Users\alumno\whatsapp-bot>type nul > README.md
+
+C:\Users\alumno\whatsapp-bot>
+C:\Users\alumno\whatsapp-bot>tree /F
+Listado de rutas de carpetas
+El número de serie del volumen es A895-23F1
+C:.
+│   .env.example
+│   .gitignore
+│   README.md
+│   requirements.txt
+│   run.py
+│
+├───app
+│   │   models.py
+│   │   routes.py
+│   │   whatsapp.py
+│   │   __init__.py
+│   │
+│   ├───static
+│   │   ├───css
+│   │   │       style.css
+│   │   │
+│   │   └───js
+│   │           main.js
+│   │
+│   └───templates
+│           index.html
+│
+├───instance
+└───tests
+        test_app.py
+        __init__.py
+
+
+C:\Users\alumno\whatsapp-bot>
