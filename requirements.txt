@@ -1,9 +1,0 @@
-<<<<<<< HEAD
-Flask
-Flask-SQLAlchemy
-requests
-gunicorn
-=======
-flask
-gunicorn
->>>>>>> 696bea70e256efd75eb3a7072bed963c9ad14ecf
